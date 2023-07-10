@@ -1,0 +1,216 @@
+print("local Tool = script.Parent
+
+local Player = game.Players.LocalPlayer
+local Character = Player.Character
+
+while not Character or not Character.Parent do
+	Character = Player.Character
+	wait()
+end
+
+local Humanoid = Character:WaitForChild("Humanoid")
+
+local Equipped = false
+
+local Blocking = false
+
+local BlockDebounce = false
+
+local AnimsFolder = Tool:WaitForChild("AnimsFolder")
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local UserInputService = game:GetService("UserInputService")
+
+local TweenService = game:GetService("TweenService")
+
+local EventsFolder = Tool:WaitForChild("EventsFolder")
+
+local Ignores = {}
+
+local Equip = Humanoid:LoadAnimation(AnimsFolder:WaitForChild("Equip"))
+local Idle = Humanoid:LoadAnimation(AnimsFolder:WaitForChild("Idle"))
+local Attack1 = Humanoid:LoadAnimation(AnimsFolder:WaitForChild("Attack1"))
+local Attack2 = Humanoid:LoadAnimation(AnimsFolder:WaitForChild("Attack2"))
+local Attack3 = Humanoid:LoadAnimation(AnimsFolder:WaitForChild("Attack3"))
+local BlockStart = Humanoid:LoadAnimation(AnimsFolder:WaitForChild("BlockStart"))
+local BlockIdle = Humanoid:LoadAnimation(AnimsFolder:WaitForChild("BlockIdle"))
+local BlockEnd = Humanoid:LoadAnimation(AnimsFolder:WaitForChild("BlockEnd"))
+local BlockHit = Humanoid:LoadAnimation(AnimsFolder:WaitForChild("BlockHit"))
+
+local RaycastHitbox = require(game.ReplicatedStorage.Modules.RaycastHitboxV3)
+
+local Hitbox
+
+local function OnEquipped()
+	for _, v in pairs(workspace:GetDescendants()) do		
+		if v.Parent:FindFirstChild("IsArmor") and not v:IsA("Folder") then
+			table.insert(Ignores, v)
+		end
+	end
+
+	Hitbox = RaycastHitbox:Initialize(Tool, {Tool.Parent, Ignores})
+	Hitbox:PartMode(false)	
+	Hitbox:DebugMode(false)
+	Hitbox:HitStop()
+	Equip:Play()
+	Humanoid.WalkSpeed = Humanoid.WalkSpeed + 11
+	Player.PlayerGui.Crosshair.Enabled = true
+	Equipped = true
+	game:GetService("UserInputService").MouseIconEnabled = false
+	wait(Equip.Length - 0.1)
+	if Tool.Parent == Character then
+		Idle:Play()
+	end
+end
+
+local function OnUnequipped()
+	Idle:Stop()
+	Equip:Stop()
+	Attack1:Stop()
+	Attack2:Stop()
+	Attack3:Stop()
+	Equipped = false
+	Player.PlayerGui.Crosshair.Enabled = false
+	game:GetService("UserInputService").MouseIconEnabled = true
+	Humanoid.WalkSpeed = Humanoid.WalkSpeed - 11
+end
+
+EventsFolder.Attack.OnClientEvent:Connect(function(Combo)
+	if Combo == 1 then
+		Attack1:Play()
+		Attack1:AdjustSpeed(0.7)
+		
+		Player.PlayerGui.Crosshair.Crosshair.Bar.Visible = true
+		Player.PlayerGui.Crosshair.Crosshair.Bar.Bar2.Size = UDim2.new(0,0,1,0)
+		TweenService:Create(Player.PlayerGui.Crosshair.Crosshair.Bar.Bar2, TweenInfo.new(1.3, Enum.EasingStyle.Linear), {Size = UDim2.new(1,0,1,0)}):Play()
+		
+		local HitboxConnection 
+		HitboxConnection = Hitbox.OnHit:Connect(function(hit, hum)
+			EventsFolder.Hit:FireServer(hit, hum, Character:WaitForChild("Torso"))
+			for _, v in pairs(workspace.ignore:GetChildren()) do
+				if v.Name == "RaycastHitboxDebugPart" then
+					v.Color = Color3.fromRGB(0,255,0)
+				end
+			end
+			Hitbox:HitStop()
+			HitboxConnection:Disconnect()
+		end)
+		
+		Humanoid.WalkSpeed = Humanoid.WalkSpeed + 6
+		wait(0.4)
+		Hitbox:HitStart()
+		Humanoid.WalkSpeed = Humanoid.WalkSpeed - 9
+		wait(0.4)
+		Hitbox:HitStop()
+		wait(0.1)
+		Humanoid.WalkSpeed = Humanoid.WalkSpeed + 3
+		wait(0.4)
+		Player.PlayerGui.Crosshair.Crosshair.Bar.Visible = false
+	elseif Combo == 2 then
+		Attack2:Play()
+		
+		Player.PlayerGui.Crosshair.Crosshair.Bar.Visible = true
+		Player.PlayerGui.Crosshair.Crosshair.Bar.Bar2.Size = UDim2.new(0,0,1,0)
+		TweenService:Create(Player.PlayerGui.Crosshair.Crosshair.Bar.Bar2, TweenInfo.new(1.3, Enum.EasingStyle.Linear), {Size = UDim2.new(1,0,1,0)}):Play()
+		
+		local HitboxConnection 
+		HitboxConnection = Hitbox.OnHit:Connect(function(hit, hum)
+			EventsFolder.Hit:FireServer(hit, hum, Character:WaitForChild("Torso"))
+			for _, v in pairs(workspace.ignore:GetChildren()) do
+				if v.Name == "RaycastHitboxDebugPart" then
+					v.Color = Color3.fromRGB(0,255,0)
+				end
+			end
+			Hitbox:HitStop()
+			HitboxConnection:Disconnect()
+		end)
+		
+		Humanoid.WalkSpeed = Humanoid.WalkSpeed + 6
+		wait(0.4)
+		Hitbox:HitStart()
+		wait(0.2)
+		Humanoid.WalkSpeed = Humanoid.WalkSpeed - 9
+		wait(0.2)
+		Hitbox:HitStop()
+		wait(0.1)
+		Humanoid.WalkSpeed = Humanoid.WalkSpeed + 3
+		wait(0.4)
+		Player.PlayerGui.Crosshair.Crosshair.Bar.Visible = false
+	elseif Combo == 3 then
+		Attack3:Play()
+		Attack3:AdjustSpeed(0.85)
+		
+		Player.PlayerGui.Crosshair.Crosshair.Bar.Visible = true
+		Player.PlayerGui.Crosshair.Crosshair.Bar.Bar2.Size = UDim2.new(0,0,1,0)
+		TweenService:Create(Player.PlayerGui.Crosshair.Crosshair.Bar.Bar2, TweenInfo.new(1.3, Enum.EasingStyle.Linear), {Size = UDim2.new(1,0,1,0)}):Play()
+		
+		local HitboxConnection 
+		HitboxConnection = Hitbox.OnHit:Connect(function(hit, hum)
+			EventsFolder.Hit:FireServer(hit, hum, Character:WaitForChild("Torso"))
+			for _, v in pairs(workspace.ignore:GetChildren()) do
+				if v.Name == "RaycastHitboxDebugPart" then
+					v.Color = Color3.fromRGB(0,255,0)
+				end
+			end
+			Hitbox:HitStop()
+			HitboxConnection:Disconnect()
+		end)
+		
+		Humanoid.WalkSpeed = Humanoid.WalkSpeed + 6
+		wait(0.5)
+		Hitbox:HitStart()
+		Humanoid.WalkSpeed = Humanoid.WalkSpeed - 9
+		wait(0.6)
+		Hitbox:HitStop()
+		Humanoid.WalkSpeed = Humanoid.WalkSpeed + 3
+		wait(0.2)
+		Player.PlayerGui.Crosshair.Crosshair.Bar.Visible = false
+	end
+end)
+
+Tool.Equipped:Connect(OnEquipped)
+Tool.Unequipped:Connect(OnUnequipped)
+
+UserInputService.InputBegan:Connect(function(Key, IsTyping)
+	if Key.KeyCode == Enum.KeyCode.Q and Equipped and not Blocking and not BlockDebounce and not IsTyping then
+		Blocking = true
+		BlockStart:Play()
+		BlockDebounce = true
+		EventsFolder.Block:FireServer("Start", Character)
+		Humanoid.WalkSpeed = Humanoid.WalkSpeed - 15
+		wait(BlockStart.Length - 0.1)
+		BlockDebounce = false
+		if Blocking == true then
+			BlockIdle:Play()
+			BlockStart:Stop()
+		elseif Blocking == false then
+			BlockStart:Stop()
+			BlockIdle:Stop()
+			BlockHit:Stop()
+		end
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(Key, IsTyping)
+	if Key.KeyCode == Enum.KeyCode.Q and Equipped and Blocking then
+		Blocking = false
+		EventsFolder.Block:FireServer("End", Character)
+		Humanoid.WalkSpeed = Humanoid.WalkSpeed + 15
+		BlockEnd:Play()
+		BlockStart:Stop()
+		BlockIdle:Stop()
+		BlockHit:Stop()
+	end
+end)
+
+EventsFolder.Block.OnClientEvent:Connect(function()
+	Blocking = false
+	EventsFolder.Block:FireServer("End", Character)
+	Humanoid.WalkSpeed = Humanoid.WalkSpeed + 15
+	BlockHit:Play()
+	BlockEnd:Stop()
+	BlockStart:Stop()
+	BlockIdle:Stop()
+	BlockHit:Stop()
+end)")
